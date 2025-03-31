@@ -1,4 +1,42 @@
+// @ts-nocheck
 import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  CheckCircle2,
+  CheckSquare,
+  Clock,
+  AlertCircle,
+  ClipboardList,
+  Goal,
+  Microscope,
+} from "lucide-react";
 
 export default function QualityControl() {
   // Mock quality control data
@@ -58,7 +96,7 @@ export default function QualityControl() {
     notes: "",
   });
 
-  const handleSelectTask = (taskId:any) => {
+  const handleSelectTask = (taskId) => {
     setActiveTask(taskId);
     // Reset test results when selecting a new task
     setTestResults({
@@ -71,7 +109,7 @@ export default function QualityControl() {
     });
   };
 
-  const handleSubmitResults = (e:any) => {
+  const handleSubmitResults = (e) => {
     e.preventDefault();
 
     // Determine pass/fail result based on test results
@@ -104,344 +142,368 @@ export default function QualityControl() {
     setActiveTask(null);
   };
 
+  // Get status badge
+  const getStatusInfo = (status, result) => {
+    switch (status) {
+      case "completed":
+        if (result === "pass") {
+          return {
+            badge: "success",
+            icon: <CheckCircle2 className="h-4 w-4 mr-1" />,
+            label: "Pass",
+          };
+        } else if (result === "minor_issues") {
+          return {
+            badge: "warning",
+            icon: <AlertCircle className="h-4 w-4 mr-1" />,
+            label: "Minor Issues",
+          };
+        } else {
+          return {
+            badge: "destructive",
+            icon: <AlertCircle className="h-4 w-4 mr-1" />,
+            label: "Fail",
+          };
+        }
+      case "in-progress":
+        return {
+          badge: "default",
+          icon: <Clock className="h-4 w-4 mr-1" />,
+          label: "In Progress",
+        };
+      case "pending":
+        return {
+          badge: "secondary",
+          icon: <ClipboardList className="h-4 w-4 mr-1" />,
+          label: "Pending",
+        };
+      default:
+        return {
+          badge: "secondary",
+          icon: <ClipboardList className="h-4 w-4 mr-1" />,
+          label: status,
+        };
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Quality Control</h1>
+      <h1 className="text-2xl font-bold">Quality Control</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Task List */}
         <div className="lg:col-span-1 space-y-4">
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold mb-4">
-              Quality Control Tasks
-            </h2>
-            <div className="space-y-3">
-              {qualityTasks
-                .filter(
-                  (task) =>
-                    task.status === "pending" || task.status === "in-progress"
-                )
-                .map((task) => (
-                  <div
-                    key={task.id}
-                    onClick={() => handleSelectTask(task.id)}
-                    className={`p-3 border rounded-lg cursor-pointer ${
-                      activeTask === task.id ? "border-blue-500 bg-blue-50" : ""
-                    }`}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          {task.product}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Batch: {task.batch}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Due: {task.dueDate}
-                        </p>
-                      </div>
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          task.status === "in-progress"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-yellow-100 text-yellow-800"
+          <Card>
+            <CardHeader>
+              <CardTitle>Quality Control Tasks</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <ScrollArea className="h-[300px]">
+                <div className="p-4 space-y-3">
+                  {qualityTasks
+                    .filter(
+                      (task) =>
+                        task.status === "pending" ||
+                        task.status === "in-progress"
+                    )
+                    .map((task) => (
+                      <Card
+                        key={task.id}
+                        onClick={() => handleSelectTask(task.id)}
+                        className={`cursor-pointer transition-colors ${
+                          activeTask === task.id ? "border-primary" : ""
                         }`}
                       >
-                        {task.status === "in-progress"
-                          ? "In Progress"
-                          : "Pending"}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium">{task.product}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                Batch: {task.batch}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Due: {task.dueDate}
+                              </p>
+                            </div>
+                            <Badge
+                              variant={getStatusInfo(task.status).badge}
+                              className="flex items-center"
+                            >
+                              {getStatusInfo(task.status).icon}
+                              {getStatusInfo(task.status).label}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
 
-          <div className="bg-white p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold mb-4">
-              Completed Inspections
-            </h2>
-            <div className="space-y-3">
-              {qualityTasks
-                .filter((task) => task.status === "completed")
-                .map((task) => (
-                  <div key={task.id} className="p-3 border rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          {task.product}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Batch: {task.batch}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Completed: {task.dueDate}
-                        </p>
-                      </div>
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${
-                          task.result === "pass"
-                            ? "bg-green-100 text-green-800"
-                            : task.result === "minor_issues"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {task.result === "pass"
-                          ? "Pass"
-                          : task.result === "minor_issues"
-                          ? "Minor Issues"
-                          : "Fail"}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Completed Inspections</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <ScrollArea className="h-[300px]">
+                <div className="p-4 space-y-3">
+                  {qualityTasks
+                    .filter((task) => task.status === "completed")
+                    .map((task) => (
+                      <Card key={task.id}>
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium">{task.product}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                Batch: {task.batch}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Completed: {task.dueDate}
+                              </p>
+                            </div>
+                            <Badge
+                              variant={
+                                getStatusInfo(task.status, task.result).badge
+                              }
+                              className="flex items-center"
+                            >
+                              {getStatusInfo(task.status, task.result).icon}
+                              {getStatusInfo(task.status, task.result).label}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Quality Control Form */}
         <div className="lg:col-span-2">
           {activeTask ? (
-            <div className="bg-white p-4 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-4">
-                Quality Control Inspection -{" "}
-                {qualityTasks.find((t) => t.id === activeTask)?.product}
-              </h2>
-
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <p className="text-sm text-blue-800">
-                  <strong>Batch:</strong>{" "}
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  Quality Control Inspection -{" "}
+                  {qualityTasks.find((t) => t.id === activeTask)?.product}
+                </CardTitle>
+                <CardDescription className="flex items-center">
+                  <span className="font-medium text-foreground">Batch:</span>{" "}
                   {qualityTasks.find((t) => t.id === activeTask)?.batch} |
-                  <strong> Due Date:</strong>{" "}
+                  <span className="font-medium text-foreground ml-1">
+                    Due Date:
+                  </span>{" "}
                   {qualityTasks.find((t) => t.id === activeTask)?.dueDate}
-                </p>
-              </div>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmitResults} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="appearance">Visual Appearance</Label>
+                      <Select
+                        required
+                        value={testResults.appearance}
+                        onValueChange={(value) =>
+                          setTestResults({ ...testResults, appearance: value })
+                        }
+                      >
+                        <SelectTrigger id="appearance" className="mt-1">
+                          <SelectValue placeholder="Select result" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="excellent">Excellent</SelectItem>
+                          <SelectItem value="good">Good</SelectItem>
+                          <SelectItem value="fair">Fair</SelectItem>
+                          <SelectItem value="poor">Poor</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-              <form onSubmit={handleSubmitResults} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Visual Appearance
-                    </label>
-                    <select
-                      required
-                      value={testResults.appearance}
-                      onChange={(e) =>
-                        setTestResults({
-                          ...testResults,
-                          appearance: e.target.value,
-                        })
-                      }
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Select result</option>
-                      <option value="excellent">Excellent</option>
-                      <option value="good">Good</option>
-                      <option value="fair">Fair</option>
-                      <option value="poor">Poor</option>
-                    </select>
+                    <div>
+                      <Label htmlFor="scent">Scent Evaluation</Label>
+                      <Select
+                        required
+                        value={testResults.scent}
+                        onValueChange={(value) =>
+                          setTestResults({ ...testResults, scent: value })
+                        }
+                      >
+                        <SelectTrigger id="scent" className="mt-1">
+                          <SelectValue placeholder="Select result" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="excellent">Excellent</SelectItem>
+                          <SelectItem value="good">Good</SelectItem>
+                          <SelectItem value="fair">Fair</SelectItem>
+                          <SelectItem value="poor">Poor</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="texture">Texture Assessment</Label>
+                      <Select
+                        required
+                        value={testResults.texture}
+                        onValueChange={(value) =>
+                          setTestResults({ ...testResults, texture: value })
+                        }
+                      >
+                        <SelectTrigger id="texture" className="mt-1">
+                          <SelectValue placeholder="Select result" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="excellent">Excellent</SelectItem>
+                          <SelectItem value="good">Good</SelectItem>
+                          <SelectItem value="fair">Fair</SelectItem>
+                          <SelectItem value="poor">Poor</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="weight">Weight Check (grams)</Label>
+                      <Input
+                        id="weight"
+                        type="number"
+                        step="0.1"
+                        value={testResults.weight}
+                        onChange={(e) =>
+                          setTestResults({
+                            ...testResults,
+                            weight: e.target.value,
+                          })
+                        }
+                        placeholder="Target: 100g ± 2g"
+                        className="mt-1"
+                      />
+                    </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Scent Evaluation
-                    </label>
-                    <select
-                      required
-                      value={testResults.scent}
-                      onChange={(e) =>
-                        setTestResults({
-                          ...testResults,
-                          scent: e.target.value,
-                        })
-                      }
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Select result</option>
-                      <option value="excellent">Excellent</option>
-                      <option value="good">Good</option>
-                      <option value="fair">Fair</option>
-                      <option value="poor">Poor</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Texture Assessment
-                    </label>
-                    <select
-                      required
-                      value={testResults.texture}
-                      onChange={(e) =>
-                        setTestResults({
-                          ...testResults,
-                          texture: e.target.value,
-                        })
-                      }
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    >
-                      <option value="">Select result</option>
-                      <option value="excellent">Excellent</option>
-                      <option value="good">Good</option>
-                      <option value="fair">Fair</option>
-                      <option value="poor">Poor</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Weight Check (grams)
-                    </label>
-                    <input
+                    <Label htmlFor="ph">pH Level</Label>
+                    <Input
+                      id="ph"
                       type="number"
                       step="0.1"
-                      value={testResults.weight}
+                      value={testResults.pH}
+                      onChange={(e) =>
+                        setTestResults({ ...testResults, pH: e.target.value })
+                      }
+                      placeholder="Target: 8.0 - 10.0"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="notes">Notes and Observations</Label>
+                    <Textarea
+                      id="notes"
+                      rows="4"
+                      value={testResults.notes}
                       onChange={(e) =>
                         setTestResults({
                           ...testResults,
-                          weight: e.target.value,
+                          notes: e.target.value,
                         })
                       }
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Target: 100g ± 2g"
+                      placeholder="Enter any additional observations or concerns..."
+                      className="mt-1"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    pH Level
-                  </label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={testResults.pH}
-                    onChange={(e) =>
-                      setTestResults({ ...testResults, pH: e.target.value })
-                    }
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Target: 8.0 - 10.0"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Notes and Observations
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={testResults.notes}
-                    onChange={(e) =>
-                      setTestResults({ ...testResults, notes: e.target.value })
-                    }
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter any additional observations or concerns..."
-                  ></textarea>
-                </div>
-
-                <div className="pt-4 flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => setActiveTask(null)}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
-                    Submit Results
-                  </button>
-                </div>
-              </form>
-            </div>
+                  <div className="pt-4 flex justify-end space-x-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setActiveTask(null)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit">Submit Results</Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
           ) : (
-            <div className="bg-white p-8 rounded-lg shadow flex flex-col items-center justify-center h-full">
-              <div className="text-gray-400 mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-16 w-16"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
+            <Card className="h-full flex flex-col items-center justify-center p-8">
+              <div className="text-muted-foreground mb-4">
+                <Microscope className="h-16 w-16" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No Task Selected
-              </h3>
-              <p className="text-gray-600 text-center">
+              <h3 className="text-lg font-medium mb-2">No Task Selected</h3>
+              <p className="text-muted-foreground text-center">
                 Select a quality control task from the left panel to begin
                 inspection.
               </p>
-            </div>
+            </Card>
           )}
 
-          <div className="mt-6 bg-white p-4 rounded-lg shadow">
-            <h2 className="text-lg font-semibold mb-4">
-              Quality Standards Reference
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-medium text-gray-900">Visual Appearance</h3>
-                <ul className="mt-1 text-sm text-gray-600 list-disc list-inside">
-                  <li>
-                    Excellent: No visual defects, consistent color, smooth
-                    texture
-                  </li>
-                  <li>
-                    Good: Minor variations in color, no significant defects
-                  </li>
-                  <li>
-                    Fair: Noticeable color variations, minor surface defects
-                  </li>
-                  <li>
-                    Poor: Significant defects, inconsistent coloring, cracks
-                  </li>
-                </ul>
-              </div>
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Goal className="mr-2 h-5 w-5" />
+                Quality Standards Reference
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="font-medium">Visual Appearance</h3>
+                  <ul className="mt-1 text-sm text-muted-foreground list-disc list-inside">
+                    <li>
+                      Excellent: No visual defects, consistent color, smooth
+                      texture
+                    </li>
+                    <li>
+                      Good: Minor variations in color, no significant defects
+                    </li>
+                    <li>
+                      Fair: Noticeable color variations, minor surface defects
+                    </li>
+                    <li>
+                      Poor: Significant defects, inconsistent coloring, cracks
+                    </li>
+                  </ul>
+                </div>
 
-              <div>
-                <h3 className="font-medium text-gray-900">Scent Evaluation</h3>
-                <ul className="mt-1 text-sm text-gray-600 list-disc list-inside">
-                  <li>
-                    Excellent: Strong, consistent fragrance matching product
-                    profile
-                  </li>
-                  <li>
-                    Good: Clear fragrance with slight variations from standard
-                  </li>
-                  <li>Fair: Mild fragrance with notable variations</li>
-                  <li>
-                    Poor: Weak fragrance, significant deviation, or unpleasant
-                    notes
-                  </li>
-                </ul>
-              </div>
+                <div>
+                  <h3 className="font-medium">Scent Evaluation</h3>
+                  <ul className="mt-1 text-sm text-muted-foreground list-disc list-inside">
+                    <li>
+                      Excellent: Strong, consistent fragrance matching product
+                      profile
+                    </li>
+                    <li>
+                      Good: Clear fragrance with slight variations from standard
+                    </li>
+                    <li>Fair: Mild fragrance with notable variations</li>
+                    <li>
+                      Poor: Weak fragrance, significant deviation, or unpleasant
+                      notes
+                    </li>
+                  </ul>
+                </div>
 
-              <div>
-                <h3 className="font-medium text-gray-900">pH Standards</h3>
-                <ul className="mt-1 text-sm text-gray-600 list-disc list-inside">
-                  <li>Target pH range: 8.0 - 10.0</li>
-                  <li>Acceptable range: 7.5 - 10.5</li>
-                  <li>
-                    Outside this range requires further testing and evaluation
-                  </li>
-                </ul>
+                <div>
+                  <h3 className="font-medium">pH Standards</h3>
+                  <ul className="mt-1 text-sm text-muted-foreground list-disc list-inside">
+                    <li>Target pH range: 8.0 - 10.0</li>
+                    <li>Acceptable range: 7.5 - 10.5</li>
+                    <li>
+                      Outside this range requires further testing and evaluation
+                    </li>
+                  </ul>
+                </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

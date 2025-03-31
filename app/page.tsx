@@ -21,7 +21,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100">
+    <main className="min-h-screen bg-background">
       {!user ? (
         <Login onLogin={handleLogin} />
       ) : user.role === "admin" ? (

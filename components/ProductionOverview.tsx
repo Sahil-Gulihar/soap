@@ -1,4 +1,8 @@
+// @ts-nocheck
 import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProductionOverview() {
   // Mock data
@@ -29,24 +33,28 @@ export default function ProductionOverview() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
-          title="Today's Production"
-          value={productionStats.todayProduction}
+          title="Today's Production" 
+          value={productionStats.todayProduction} 
           target={productionStats.todayTarget}
-          unit="units" subtitle={undefined} color={undefined}        />
+          unit="units"
+        />
         <StatCard 
-          title="Weekly Production"
-          value={productionStats.weeklyProduction}
+          title="Weekly Production" 
+          value={productionStats.weeklyProduction} 
           target={productionStats.weeklyTarget}
-          unit="units" subtitle={undefined} color={undefined}        />
+          unit="units"
+        />
         <StatCard 
-          title="Production Lines"
-          value={`${productionStats.activeLines}/${productionStats.totalLines}`}
-          subtitle="Active Lines" target={undefined} unit={undefined} color={undefined}        />
+          title="Production Lines" 
+          value={`${productionStats.activeLines}/${productionStats.totalLines}`} 
+          subtitle="Active Lines"
+        />
         <StatCard 
-          title="Efficiency Rate"
-          value={`${productionStats.efficiency}%`}
+          title="Efficiency Rate" 
+          value={`${productionStats.efficiency}%`} 
           subtitle="Overall Efficiency"
-          color={productionStats.efficiency >= 90 ? 'green' : productionStats.efficiency >= 70 ? 'yellow' : 'red'} target={undefined} unit={undefined}        />
+          color={productionStats.efficiency >= 90 ? 'green' : productionStats.efficiency >= 70 ? 'yellow' : 'red'}
+        />
       </div>
       
       {/* Recent Production Batches */}
@@ -132,57 +140,66 @@ export default function ProductionOverview() {
     </div>
   );
 }
-function StatCard({ title, value, target, unit, subtitle, color }:any) {
+
+function StatCard({ title, value, target, unit, subtitle, color }) {
   const getPercentage = () => {
     if (!target) return null;
     return Math.round((value / target) * 100);
   };
   
   const percentage = getPercentage();
-  const displayColor = color || (percentage != null && percentage >= 90 ? 'green' : percentage != null && percentage >= 70 ? 'yellow' : 'red');
+  const displayColor = color || (percentage >= 90 ? 'green' : percentage >= 70 ? 'yellow' : 'red');
   
-  const colorClasses = {
-    green: 'bg-green-100 text-green-800',
-    yellow: 'bg-yellow-100 text-yellow-800',
-    red: 'bg-red-100 text-red-800',
+  const progressColor = {
+    green: "bg-green-500",
+    yellow: "bg-yellow-500",
+    red: "bg-red-500",
+  };
+
+  const badgeVariant = {
+    green: "success",
+    yellow: "warning",
+    red: "destructive",
   };
   
   return (
-    <div className="bg-white p-4 rounded-lg shadow">
-      <h3 className="text-sm text-gray-600 font-medium">{title}</h3>
-      <div className="mt-2 flex items-end justify-between">
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-        {target && (
-          <p className="text-sm text-gray-600">
-            of {target} {unit}
-          </p>
-        )}
-      </div>
-      {percentage ? (
-        <div className="mt-2">
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className={`h-2 rounded-full ${
-                displayColor === 'green' ? 'bg-green-500' : 
-                displayColor === 'yellow' ? 'bg-yellow-500' : 'bg-red-500'
-              }`}
-              style={{ width: `${Math.min(percentage, 100)}%` }}
-            ></div>
-          </div>
-          <p className="mt-1 text-xs text-gray-600">{percentage}% of target</p>
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-end justify-between">
+          <p className="text-2xl font-bold">{value}</p>
+          {target && (
+            <p className="text-sm text-muted-foreground">
+              of {target} {unit}
+            </p>
+          )}
         </div>
-      ) : (
-        subtitle && <p className="mt-1 text-xs text-gray-600">{subtitle}</p>
-      )}
-    </div>
+        
+        {percentage ? (
+          <div className="mt-2 space-y-1">
+            <Progress 
+              value={Math.min(percentage, 100)} 
+              className={progressColor[displayColor]}
+            />
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-muted-foreground">{percentage}% of target</p>
+              <Badge variant={badgeVariant[displayColor]} className="text-xs">
+                {displayColor === 'green' ? 'On Track' : 
+                 displayColor === 'yellow' ? 'Caution' : 'Behind'}
+              </Badge>
+            </div>
+          </div>
+        ) : (
+          subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
-
-
-type StatusType = "completed" | "in-progress" | "upcoming" | "delayed";
-
-function ScheduleItem({ time, product, line, quantity, status }: { time: any, product: any, line: any, quantity: any, status: StatusType }) {
-  const statusClasses: { [key in StatusType]: string } = {
+function ScheduleItem({ time, product, line, quantity, status }) {
+  const statusClasses = {
     completed: "bg-green-100 text-green-800",
     "in-progress": "bg-blue-100 text-blue-800",
     upcoming: "bg-gray-100 text-gray-800",

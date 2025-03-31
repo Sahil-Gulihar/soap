@@ -1,37 +1,83 @@
+//@ts-nocheck
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  PieChart,
+  Package,
+  Users,
+  ShoppingCart,
+  BarChart,
+  ClipboardList,
+  Calendar,
+  CheckCircle,
+} from "lucide-react";
+
 export default function Sidebar({
   menuItems,
   activeSection,
   setActiveSection,
-}:any) {
+}) {
+  // Map icon strings to Lucide React components
+  const getIcon = (iconName) => {
+    switch (iconName) {
+      case "chart-pie":
+        return <PieChart className="h-5 w-5" />;
+      case "cube":
+        return <Package className="h-5 w-5" />;
+      case "users":
+        return <Users className="h-5 w-5" />;
+      case "shopping-cart":
+        return <ShoppingCart className="h-5 w-5" />;
+      case "chart-bar":
+        return <BarChart className="h-5 w-5" />;
+      case "clipboard-list":
+        return <ClipboardList className="h-5 w-5" />;
+      case "calendar":
+        return <Calendar className="h-5 w-5" />;
+      case "check-circle":
+        return <CheckCircle className="h-5 w-5" />;
+      default:
+        return <Package className="h-5 w-5" />;
+    }
+  };
+
   return (
-    <div className="w-64 bg-blue-800 text-white flex flex-col">
-      <div className="p-4 text-center border-b border-blue-700">
+    <div className="w-64 border-r bg-card flex flex-col h-screen">
+      <div className="p-6 border-b">
         <h1 className="text-xl font-bold">Soap Factory</h1>
-        <p className="text-sm text-blue-300">Management System</p>
+        <p className="text-sm text-muted-foreground">Management System</p>
       </div>
 
-      <nav className="flex-1 p-4">
-        <ul className="space-y-2">
-          {menuItems.map((item:any) => (
-            <li key={item.id}>
-              <button
-                onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center p-2 rounded-md hover:bg-blue-700 ${
-                  activeSection === item.id ? "bg-blue-700" : ""
-                }`}
-              >
-                <span className="mr-2">
-                  {/* Replace with actual icons in production */}
-                  <span className="w-5 h-5 inline-block text-center">
-                    {item.icon[0]}
-                  </span>
-                </span>
-                <span>{item.label}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <ScrollArea className="flex-1 px-3">
+        <nav className="flex-1 py-4">
+          <ul className="space-y-1">
+            {menuItems.map((item) => (
+              <li key={item.id}>
+                <Button
+                  variant={activeSection === item.id ? "secondary" : "ghost"}
+                  className={cn(
+                    "w-full justify-start",
+                    activeSection === item.id
+                      ? "bg-secondary text-secondary-foreground"
+                      : "hover:bg-secondary/50 hover:text-secondary-foreground"
+                  )}
+                  onClick={() => setActiveSection(item.id)}
+                >
+                  <span className="mr-2">{getIcon(item.icon)}</span>
+                  <span>{item.label}</span>
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </ScrollArea>
+
+      <div className="p-4 border-t">
+        <p className="text-xs text-muted-foreground">
+          © 2025 Soap Factory, Inc.
+        </p>
+      </div>
     </div>
   );
 }

@@ -17,7 +17,7 @@ export default function EmployeeDashboard({ user, onLogout }:any) {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-background">
       <Sidebar
         menuItems={employeeMenuItems}
         activeSection={activeSection}
@@ -27,7 +27,7 @@ export default function EmployeeDashboard({ user, onLogout }:any) {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header user={user} onLogout={onLogout} title="Employee Dashboard" />
 
-        <main className="flex-1 overflow-y-auto p-4">
+        <main className="flex-1 overflow-y-auto p-6">
           {activeSection === "tasks" && <ProductionTasks />}
           {activeSection === "inventory" && <InventoryView />}
           {activeSection === "schedule" && <Schedule />}
