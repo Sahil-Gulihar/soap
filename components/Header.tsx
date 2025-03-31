@@ -10,24 +10,38 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, User as UserIcon, Settings, HelpCircle } from "lucide-react";
+import {
+  LogOut,
+  User as UserIcon,
+  Settings,
+  HelpCircle,
+  Menu,
+} from "lucide-react";
 
-export default function Header({ user, onLogout, title }:any) {
-  const getInitials = (name:any) => {
+export default function Header({ user, onLogout, title, setIsOpen }: any) {
+  const getInitials = (name: any) => {
     return name
       .split(" ")
-      .map((word:any) => word[0])
+      .map((word: any) => word[0])
       .join("")
       .toUpperCase();
   };
 
   return (
     <header className="bg-background border-b border-border px-4 py-3 flex justify-between items-center">
-      <h2 className="text-xl font-semibold">{title}</h2>
+      <div className="flex items-center">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="mr-2 md:hidden"
+          onClick={() => setIsOpen(true)}
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+        <h2 className="text-xl font-semibold">{title}</h2>
+      </div>
 
       <div className="flex items-center space-x-4">
-
-
         <div className="text-sm flex items-center">
           <span className="hidden md:inline mr-2">Welcome, </span>
           <span className="font-medium hidden md:inline">{user.name}</span>

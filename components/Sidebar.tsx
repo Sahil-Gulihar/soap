@@ -11,12 +11,18 @@ import {
   ClipboardList,
   Calendar,
   CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Menu,
 } from "lucide-react";
+import { useEffect } from "react";
 
 export default function Sidebar({
   menuItems,
   activeSection,
   setActiveSection,
+  isOpen,
+  setIsOpen,
 }) {
   // Map icon strings to Lucide React components
   const getIcon = (iconName) => {
@@ -42,42 +48,93 @@ export default function Sidebar({
     }
   };
 
+  // Close sidebar on mobile when a menu item is clicked
+  const handleMenuItemClick = (id) => {
+    setActiveSection(id);
+    if (window.innerWidth < 768) {
+      setIsOpen(false);
+    }
+  };
+
+  // Add effect to close sidebar on resize if screen becomes mobile
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setIsOpen(false);
+      } else {
+        setIsOpen(true);
+      }
+    };
+
+    // Set initial state
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [setIsOpen]);
+
   return (
-    <div className="w-64 border-r bg-card flex flex-col h-screen">
-      <div className="p-6 border-b">
-        <h1 className="text-xl font-bold">Soap Factory</h1>
-        <p className="text-sm text-muted-foreground">Management System</p>
-      </div>
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-      <ScrollArea className="flex-1 px-3">
-        <nav className="flex-1 py-4">
-          <ul className="space-y-1">
-            {menuItems.map((item) => (
-              <li key={item.id}>
-                <Button
-                  variant={activeSection === item.id ? "secondary" : "ghost"}
-                  className={cn(
-                    "w-full justify-start",
-                    activeSection === item.id
-                      ? "bg-secondary text-secondary-foreground"
-                      : "hover:bg-secondary/50 hover:text-secondary-foreground"
-                  )}
-                  onClick={() => setActiveSection(item.id)}
-                >
-                  <span className="mr-2">{getIcon(item.icon)}</span>
-                  <span>{item.label}</span>
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-      </ScrollArea>
+      {/* Sidebar */}
+      <div
+        className={cn(
+          "fixed md:static inset-y-0 left-0 z-50 w-64 border-r bg-card flex flex-col h-screen transition-transform duration-300 ease-in-out",
+          isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        )}
+      >
+        <div className="p-6 border-b flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-bold">Soap Factory</h1>
+            <p className="text-sm text-muted-foreground">Management System</p>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsOpen(false)}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+        </div>
 
-      <div className="p-4 border-t">
-        <p className="text-xs text-muted-foreground">
-          © 2025 Soap Factory, Inc.
-        </p>
+        <ScrollArea className="flex-1 px-3">
+          <nav className="flex-1 py-4">
+            <ul className="space-y-1">
+              {menuItems.map((item) => (
+                <li key={item.id}>
+                  <Button
+                    variant={activeSection === item.id ? "secondary" : "ghost"}
+                    className={cn(
+                      "w-full justify-start",
+                      activeSection === item.id
+                        ? "bg-secondary text-secondary-foreground"
+                        : "hover:bg-secondary/50 hover:text-secondary-foreground"
+                    )}
+                    onClick={() => handleMenuItemClick(item.id)}
+                  >
+                    <span className="mr-2">{getIcon(item.icon)}</span>
+                    <span>{item.label}</span>
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </ScrollArea>
+
+        <div className="p-4 border-t">
+          <p className="text-xs text-muted-foreground">
+            © 2025 Soap Factory, Inc.
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
